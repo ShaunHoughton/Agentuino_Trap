@@ -1,22 +1,22 @@
 /*
-  Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
-  Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
-  All rights reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
+ Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
+ All rights reserved.
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 #ifndef Agentuino_h
 #define Agentuino_h
@@ -28,7 +28,7 @@
 #define SNMP_MAX_VALUE_LEN      64  // 128 ??? should limit this
 #define SNMP_MAX_PACKET_LEN     SNMP_MAX_VALUE_LEN + SNMP_MAX_OID_LEN + 25  //???
 #define SNMP_FREE(s)   do { if (s) { free((void *)s); s=NULL; } } while(0)
-//Frees a pointer only if it is !NULL and sets its value to NULL. 
+//Frees a pointer only if it is !NULL and sets its value to NULL.
 
 #include "Arduino.h"
 #include "Udp.h"
@@ -109,7 +109,7 @@ typedef enum SNMP_ERR_CODES {
 	SNMP_ERR_BAD_VALUE 	  		= 3,
 	SNMP_ERR_READ_ONLY 	  		= 4,
 	SNMP_ERR_GEN_ERROR 	  		= 5,
-
+    
 	SNMP_ERR_NO_ACCESS	  		= 6,
 	SNMP_ERR_WRONG_TYPE   			= 7,
 	SNMP_ERR_WRONG_LENGTH 			= 8,
@@ -249,7 +249,7 @@ typedef struct SNMP_VALUE {
 				}
 				return SNMP_ERR_NO_ERROR;
 			} else {
-				clear();	
+				clear();
 				return SNMP_ERR_TOO_BIG;
 			}
 		} else {
@@ -307,7 +307,7 @@ typedef struct SNMP_VALUE {
 		}
 	}
 	//
-	// decode's an ip-address, NSAP-address syntax to an ip-address byte array 
+	// decode's an ip-address, NSAP-address syntax to an ip-address byte array
 	SNMP_ERR_CODES decode(byte *value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
 		if ( syntax == SNMP_SYNTAX_IP_ADDRESS || syntax == SNMP_SYNTAX_NSAPADDR ) {
@@ -351,7 +351,7 @@ typedef struct SNMP_VALUE {
 				}
 				return SNMP_ERR_NO_ERROR;
 			} else {
-				clear();	
+				clear();
 				return SNMP_ERR_TOO_BIG;
 			}
 		} else {
@@ -400,7 +400,7 @@ typedef struct SNMP_VALUE {
 	SNMP_ERR_CODES encode(SNMP_SYNTAXES syn, const uint32_t value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
 		if ( syn == SNMP_SYNTAX_COUNTER || syn == SNMP_SYNTAX_TIME_TICKS
-			|| syn == SNMP_SYNTAX_GAUGE || syn == SNMP_SYNTAX_UINT32 
+			|| syn == SNMP_SYNTAX_GAUGE || syn == SNMP_SYNTAX_UINT32
 			|| syn == SNMP_SYNTAX_OPAQUE ) {
 			uint32_u tmp;
 			size = 4;
@@ -420,7 +420,7 @@ typedef struct SNMP_VALUE {
 	// encode's an ip-address byte array to ip-address, NSAP-address, opaque  syntax
 	SNMP_ERR_CODES encode(SNMP_SYNTAXES syn, const byte *value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
-		if ( syn == SNMP_SYNTAX_IP_ADDRESS || syn == SNMP_SYNTAX_NSAPADDR 
+		if ( syn == SNMP_SYNTAX_IP_ADDRESS || syn == SNMP_SYNTAX_NSAPADDR
 			|| syn == SNMP_SYNTAX_OPAQUE ) {
 			if ( sizeof(value) > 4 ) {
 				clear();
@@ -510,9 +510,9 @@ public:
 	SNMP_API_STAT_CODES responsePdu(SNMP_PDU *pdu);
 	void onPduReceive(onPduReceiveCallback pduReceived);
 	void freePdu(SNMP_PDU *pdu);
-
+    
 	// Helper functions
-
+    
 private:
 	byte _packet[SNMP_MAX_PACKET_LEN];
 	uint16_t _packetSize;

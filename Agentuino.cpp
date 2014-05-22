@@ -1,22 +1,22 @@
 /*
-  Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
-  Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
-  All rights reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
+ Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
+ All rights reserved.
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 //
 // sketch_aug23a
@@ -62,7 +62,7 @@ SNMP_API_STAT_CODES AgentuinoClass::begin(char *getCommName, char *setCommName, 
 	//
 	// init UDP socket
 	Udp.begin(port);
-
+    
 	return SNMP_API_STAT_SUCCESS;
 }
 
@@ -106,20 +106,20 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 	if ( _packetSize != 0 && _packetSize > SNMP_MAX_PACKET_LEN ) {
 		//
 		//SNMP_FREE(_packet);
-
+        
 		return SNMP_API_STAT_PACKET_TOO_BIG;
 	}
 	//
 	// get UDP packet
 	//Udp.parsePacket();
 	Udp.read(_packet, _packetSize);
-// 	Udp.readPacket(_packet, _packetSize, _dstIp, &_dstPort);
+    // 	Udp.readPacket(_packet, _packetSize, _dstIp, &_dstPort);
 	//
 	// packet check 1
 	if ( _packet[0] != 0x30 ) {
 		//
 		//SNMP_FREE(_packet);
-
+        
 		return SNMP_API_STAT_PACKET_INVALID;
 	}
 	//
@@ -206,7 +206,7 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 		pdu->requestId = (pdu->requestId << 8) | _packet[comEnd + 5 + i];
 	}
 	//
-	// extract error 
+	// extract error
 	pdu->error = SNMP_ERR_NO_ERROR;
 	int32_t err = 0;
 	for ( i = 0; i < errLen; i++ ) {
@@ -214,7 +214,7 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 	}
 	pdu->error = (SNMP_ERR_CODES)err;
 	//
-	// extract error-index 
+	// extract error-index
 	pdu->errorIndex = 0;
 	for ( i = 0; i < eriLen; i++ ) {
 		pdu->errorIndex = (pdu->errorIndex << 8) | _packet[errEnd + 3 + i];
@@ -225,7 +225,7 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 	if ( obiLen > SNMP_MAX_OID_LEN ) {
 		// set pdu error
 		pdu->error = SNMP_ERR_TOO_BIG;
-
+        
 		return SNMP_API_STAT_OID_TOO_BIG;
 	}
 	//
@@ -243,7 +243,7 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 	if ( obiLen > SNMP_MAX_VALUE_LEN ) {
 		// set pdu error
 		pdu->error = SNMP_ERR_TOO_BIG;
-
+        
 		return SNMP_API_STAT_VALUE_TOO_BIG;
 	}
 	//
@@ -354,7 +354,7 @@ SNMP_API_STAT_CODES AgentuinoClass::responsePdu(SNMP_PDU *pdu)
 	Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 	Udp.write(_packet, _packetSize);
 	Udp.endPacket();
-//	Udp.write(_packet, _packetSize, _dstIp, _dstPort);
+    //	Udp.write(_packet, _packetSize, _dstIp, _dstPort);
 	//
 	return SNMP_API_STAT_SUCCESS;
 }
