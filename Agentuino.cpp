@@ -113,6 +113,10 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 	// get UDP packet
 	//Udp.parsePacket();
 	Udp.read(_packet, _packetSize);
+    
+
+    
+    
     // 	Udp.readPacket(_packet, _packetSize, _dstIp, &_dstPort);
 	//
 	// packet check 1
@@ -192,7 +196,37 @@ SNMP_API_STAT_CODES AgentuinoClass::requestPdu(SNMP_PDU *pdu)
 				return SNMP_API_STAT_NO_SUCH_NAME;
 			}
 		}
-	} else {
+	}else if ( pdu->type == SNMP_PDU_GET_NEXT && comLen == _getSize ) {
+		//
+		for ( i = 0; i < _getSize; i++ ) {
+			if( _packet[verEnd + 3 + i] != (byte)_getCommName[i] ) {
+				// set pdu error
+				pdu->error = SNMP_ERR_NO_SUCH_NAME;
+				//
+				return SNMP_API_STAT_NO_SUCH_NAME;
+			}
+		}
+    }else if ( pdu->type == SNMP_PDU_GET_NEXT && comLen == _getSize ) {
+		//
+		for ( i = 0; i < _getSize; i++ ) {
+			if( _packet[verEnd + 3 + i] != (byte)_getCommName[i] ) {
+				// set pdu error
+				pdu->error = SNMP_ERR_NO_SUCH_NAME;
+				//
+				return SNMP_API_STAT_NO_SUCH_NAME;
+			}
+		}
+    }else if ( pdu->type == SNMP_PDU_GET_BULK && comLen == _getSize ) {
+		//
+		for ( i = 0; i < _getSize; i++ ) {
+			if( _packet[verEnd + 3 + i] != (byte)_getCommName[i] ) {
+				// set pdu error
+				pdu->error = SNMP_ERR_NO_SUCH_NAME;
+				//
+				return SNMP_API_STAT_NO_SUCH_NAME;
+			}
+		}
+    }else {
 		// set pdu error
 		pdu->error = SNMP_ERR_NO_SUCH_NAME;
 		//
