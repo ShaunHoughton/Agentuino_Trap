@@ -1,22 +1,22 @@
 /*
- Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
- Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
- All rights reserved.
- 
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
- 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
- 
- You should have received a copy of the GNU Lesser General Public
- License along with this library; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+  Agentuino.cpp - An Arduino library for a lightweight SNMP Agent.
+  Copyright (C) 2010 Eric C. Gionet <lavco_eg@hotmail.com>
+  All rights reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef Agentuino_h
 #define Agentuino_h
@@ -28,7 +28,7 @@
 #define SNMP_MAX_VALUE_LEN      64  // 128 ??? should limit this
 #define SNMP_MAX_PACKET_LEN     SNMP_MAX_VALUE_LEN + SNMP_MAX_OID_LEN + 25  //???
 #define SNMP_FREE(s)   do { if (s) { free((void *)s); s=NULL; } } while(0)
-//Frees a pointer only if it is !NULL and sets its value to NULL.
+//Frees a pointer only if it is !NULL and sets its value to NULL. 
 
 #include "Arduino.h"
 #include "Udp.h"
@@ -106,11 +106,11 @@ typedef enum SNMP_TRAP_TYPES {
 typedef enum SNMP_ERR_CODES {
 	SNMP_ERR_NO_ERROR 	  		= 0,
 	SNMP_ERR_TOO_BIG 	  		= 1,
-	SNMP_ERR_NO_SUCH_NAME 		= 2,
+	SNMP_ERR_NO_SUCH_NAME 			= 2,
 	SNMP_ERR_BAD_VALUE 	  		= 3,
 	SNMP_ERR_READ_ONLY 	  		= 4,
 	SNMP_ERR_GEN_ERROR 	  		= 5,
-    
+
 	SNMP_ERR_NO_ACCESS	  		= 6,
 	SNMP_ERR_WRONG_TYPE   			= 7,
 	SNMP_ERR_WRONG_LENGTH 			= 8,
@@ -164,19 +164,46 @@ typedef enum SNMP_SYNTAXES {
 typedef struct SNMP_OID {
 	byte data[SNMP_MAX_OID_LEN];  // ushort array insted??
 	size_t size;
+#define belongs_to_iso_identified_organisation false
 	//
-	void fromString(const char *buffer) {
+    void write_value(uint64_t* value)
+    {
+        do
+        {
+            data[size++] = *value & ~0x80;
+            *value >>= 8;
+        }
+        while(*value);
+        data[size] |= 0x80;
+    }
+	void fromString(const char *buffer)
+    {
+        char c;
+        unsigned int i = 0;
+        uint64_t value = 0;
+        size = 0;
+        while(c = *(buffer++))
+        {
+            if(c == '.')
+            {
+                write_value(&value);
+                continue;
+            }
+            value = (c - '0') + value * 10;
+            i++;
+        }
+        write_value(&value);
 	}
 	//
-	void toString(char *buffer) {
-		buffer[0] = '1';
-		buffer[1] = '.';
-		buffer[2] = '3';
-		buffer[3] = '\0';
+    void toString(char *buffer) {
+        buffer[0] = '1';
+        buffer[1] = '.';
+        buffer[2] = '3';
+        buffer[3] = '\0';
 		//
 		char buff[16];
-		byte hsize = size - 1;
-		byte hpos = 1;
+		int hsize = size - 1;
+		int hpos = 1;
 		uint16_t subid;
 		//
 		while ( hsize > 0 ) {
@@ -250,7 +277,7 @@ typedef struct SNMP_VALUE {
 				}
 				return SNMP_ERR_NO_ERROR;
 			} else {
-				clear();
+				clear();	
 				return SNMP_ERR_TOO_BIG;
 			}
 		} else {
@@ -308,7 +335,7 @@ typedef struct SNMP_VALUE {
 		}
 	}
 	//
-	// decode's an ip-address, NSAP-address syntax to an ip-address byte array
+	// decode's an ip-address, NSAP-address syntax to an ip-address byte array 
 	SNMP_ERR_CODES decode(byte *value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
 		if ( syntax == SNMP_SYNTAX_IP_ADDRESS || syntax == SNMP_SYNTAX_NSAPADDR ) {
@@ -316,7 +343,7 @@ typedef struct SNMP_VALUE {
 			memset(value, 0, 4);
 			for(i = 0;i < size;i++)
 			{
-				*p++ = data[size - 4 - i];
+				*p++ = data[size - 1 - i];
 			}
 			return SNMP_ERR_NO_ERROR;
 		} else {
@@ -352,7 +379,7 @@ typedef struct SNMP_VALUE {
 				}
 				return SNMP_ERR_NO_ERROR;
 			} else {
-				clear();
+				clear();	
 				return SNMP_ERR_TOO_BIG;
 			}
 		} else {
@@ -401,7 +428,7 @@ typedef struct SNMP_VALUE {
 	SNMP_ERR_CODES encode(SNMP_SYNTAXES syn, const uint32_t value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
 		if ( syn == SNMP_SYNTAX_COUNTER || syn == SNMP_SYNTAX_TIME_TICKS
-			|| syn == SNMP_SYNTAX_GAUGE || syn == SNMP_SYNTAX_UINT32
+			|| syn == SNMP_SYNTAX_GAUGE || syn == SNMP_SYNTAX_UINT32 
 			|| syn == SNMP_SYNTAX_OPAQUE ) {
 			uint32_u tmp;
 			size = 4;
@@ -421,7 +448,7 @@ typedef struct SNMP_VALUE {
 	// encode's an ip-address byte array to ip-address, NSAP-address, opaque  syntax
 	SNMP_ERR_CODES encode(SNMP_SYNTAXES syn, const byte *value) {
 		memset(data, 0, SNMP_MAX_VALUE_LEN);
-		if ( syn == SNMP_SYNTAX_IP_ADDRESS || syn == SNMP_SYNTAX_NSAPADDR
+		if ( syn == SNMP_SYNTAX_IP_ADDRESS || syn == SNMP_SYNTAX_NSAPADDR 
 			|| syn == SNMP_SYNTAX_OPAQUE ) {
 			if ( sizeof(value) > 4 ) {
 				clear();
@@ -499,25 +526,37 @@ typedef struct SNMP_PDU {
 	int32_t errorIndex;
 	SNMP_OID OID;
 	SNMP_VALUE VALUE;
+    char* address;
+    int16_t trap_type;
+    int16_t specific_trap;
+    int32_t time_ticks;
+    int16_t trap_data_size;
+    void (*trap_data_adder)(byte*, void* trap_data_adder_argument);
+    void* trap_data_adder_argument;
 };
 
 class AgentuinoClass {
 public:
 	// Agent functions
 	SNMP_API_STAT_CODES begin();
-	SNMP_API_STAT_CODES begin(char *getCommName, char *setCommName, uint16_t port);
+	SNMP_API_STAT_CODES begin(char *getCommName,
+            char *setCommName, char *trapComName, uint16_t port);
 	void listen(void);
 	SNMP_API_STAT_CODES requestPdu(SNMP_PDU *pdu);
 	SNMP_API_STAT_CODES responsePdu(SNMP_PDU *pdu);
+	SNMP_API_STAT_CODES sendTrap(SNMP_PDU *pdu, const uint8_t* manager);
 	void onPduReceive(onPduReceiveCallback pduReceived);
 	void freePdu(SNMP_PDU *pdu);
-    
+
 	// Helper functions
-    
+
 private:
+    void writeHeaders(SNMP_PDU *pdu, uint16_t size);
+    SNMP_API_STAT_CODES writePacket(IPAddress address, uint16_t port);
 	byte _packet[SNMP_MAX_PACKET_LEN];
 	uint16_t _packetSize;
 	uint16_t _packetPos;
+	uint16_t _packetTrapPos;
 	SNMP_PDU_TYPES _dstType;
 	uint8_t _dstIp[4];
 	uint16_t _dstPort;
@@ -525,6 +564,8 @@ private:
 	size_t _getSize;
 	char *_setCommName;
 	size_t _setSize;
+	char *_trapCommName;
+	size_t _trapSize;
 	onPduReceiveCallback _callback;
 };
 
