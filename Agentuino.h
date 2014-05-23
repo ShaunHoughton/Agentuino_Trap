@@ -531,7 +531,7 @@ typedef struct SNMP_PDU {
     int16_t specific_trap;
     int32_t time_ticks;
     int16_t trap_data_size;
-    void (*trap_data_adder)(byte*, void* trap_data_adder_argument);
+    void (*trap_data_adder)(byte*);
     void* trap_data_adder_argument;
 };
 

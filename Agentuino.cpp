@@ -336,8 +336,7 @@ SNMP_API_STAT_CODES AgentuinoClass::sendTrap(
     _packet[_packetPos++] = (byte) 4 + pdu->trap_data_size;
     _packet[_packetPos++] = (byte) SNMP_SYNTAX_SEQUENCE;
     _packet[_packetPos++] = (byte) 2 + pdu->trap_data_size;
-    pdu->trap_data_adder(_packet + _packetPos,
-            pdu->trap_data_adder_argument);
+    pdu->trap_data_adder(_packet + _packetPos);
     return writePacket(manager, 162);
 }
 
